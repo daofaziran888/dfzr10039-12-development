@@ -362,6 +362,81 @@ class DeliveryTask:
 
 
 @dataclass
+class PartitionOwnership:
+    """分区归属：切分批次时按可追查的批准记录生效，决定分区由哪个仓库接收。
+
+    同一分区改派时旧版本置为「已替换」，新版本递增生效，整条归属链可回查。
+    """
+    ownership_id: str
+    batch_id: str
+    partition: str
+    warehouse: str
+    version: int
+    approval_id: str
+    status: str = "生效中"  # 生效中 / 已替换
+    effective_at: str = ""
+    supersedes: str = ""
+
+    @classmethod
+    def from_seed_row(cls, row: dict[str, Any]) -> PartitionOwnership:
+        return cls(
+            ownership_id=str(row.get("归属编号", "")),
+            batch_id=str(row.get("采集批次", "")),
+            partition=str(row.get("分区编码", "")),
+            warehouse=str(row.get("归属仓库", "")),
+            version=int(row.get("版本号", 1) or 1),
+            approval_id=str(row.get("批准单号", "")),
+            status=str(row.get("生效状态", "生效中")),
+            effective_at=str(row.get("生效时间", "")),
+            supersedes=str(row.get("替换归属", "")),
+        )
+
+
+@dataclass
+class DeliverySubBatch:
+    """目标子批：投递按分区归属清单为每个仓库/分区编排，更正以新版本重送。"""
+    sub_batch_id: str
+    batch_id: str
+    partition: str
+    warehouse: str
+    version: int
+    approval_id: str
+    record_keys: list[str] = field(default_factory=list)
+    status: str = "待签收"  # 待签收/已签收/已确认/已撤回/已驳回
+    receipt_id: str = ""
+    is_correction: bool = False
+    created_at: str = ""
+
+
+@dataclass
+class DeliveryReceipt:
+    """签收收据：目标实际签收/确认的凭证，撤回后旧收据仍保留可回查。"""
+    receipt_id: str
+    sub_batch_id: str
+    batch_id: str
+    partition: str
+    warehouse: str
+    version: int
+    status: str = "已签收"  # 已签收/已确认/已驳回
+    recorded_at: str = ""
+    note: str = ""
+
+
+@dataclass
+class WarehouseIntake:
+    """仓库实际入仓明细：按 仓库+分区+记录键 幂等，重放更正不会重复入仓。"""
+    intake_id: str
+    warehouse: str
+    batch_id: str
+    partition: str
+    record_key: str
+    version: int
+    receipt_id: str
+    sub_batch_id: str
+    intake_at: str = ""
+
+
+@dataclass
 class QualitySample:
     """质量抽样计划：quality_sample 管理，从 batch_store 提取样本检测。"""
     plan_id: str

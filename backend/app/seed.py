@@ -4,6 +4,11 @@ from __future__ import annotations
 from typing import Any
 
 SEED_ROWS: dict[str, list[dict[str, Any]]] = {
+    # 分区投递治理四表：归属清单、目标子批、签收收据、实际入仓明细，由领域服务写入。
+    "partition_ownership": [],
+    "delivery_sub_batch": [],
+    "delivery_receipt": [],
+    "warehouse_intake": [],
     "crawl_site": [{'id': 1,
   'status': '待验证',
   'pending': True,

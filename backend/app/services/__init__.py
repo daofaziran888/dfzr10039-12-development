@@ -24,6 +24,10 @@ from app.services.data_archive import DataArchiveService
 from app.services.diff_check import DiffCheckService
 from app.services.export_task import ExportTaskService
 from app.services.audit_log import AuditLogService
+from app.services.partition_ownership import PartitionOwnershipService
+from app.services.delivery_sub_batch import DeliverySubBatchService
+from app.services.delivery_receipt import DeliveryReceiptService
+from app.services.warehouse_intake import WarehouseIntakeService
 
 SERVICES: dict[str, BaseModuleService] = {
     "crawl_site": CrawlSiteService(),
@@ -48,6 +52,10 @@ SERVICES: dict[str, BaseModuleService] = {
     "diff_check": DiffCheckService(),
     "export_task": ExportTaskService(),
     "audit_log": AuditLogService(),
+    "partition_ownership": PartitionOwnershipService(),
+    "delivery_sub_batch": DeliverySubBatchService(),
+    "delivery_receipt": DeliveryReceiptService(),
+    "warehouse_intake": WarehouseIntakeService(),
 }
 
 
